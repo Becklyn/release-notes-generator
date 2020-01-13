@@ -115,7 +115,7 @@ function transformList (node: Node, listRenderer: remarkStringify.Visitor, headl
         renderList(categories.feature, ":gift: New Features", listRenderer, headlineRenderer),
         renderList(categories.improvement, ":sparkles: Improvements", listRenderer, headlineRenderer),
         renderList(categories.bug, ":bug: Bug Fixes", listRenderer, headlineRenderer),
-        renderList(categories.deprecation, ":older_woman: Deprecations", listRenderer, headlineRenderer),
+        renderList(categories.deprecation, ":wave: Deprecations", listRenderer, headlineRenderer),
         renderList(categories.docs, ":memo: Documentation", listRenderer, headlineRenderer),
         renderList(categories.internal, ":hammer_and_wrench: Internal", listRenderer, headlineRenderer),
     ];
