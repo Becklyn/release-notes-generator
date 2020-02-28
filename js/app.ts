@@ -7,38 +7,49 @@ import unified, {Processor} from "unified";
 import remarkStringify from "remark-stringify";
 import parse from "remark-parse";
 
-let button = findOne("#changelog-run");
-let result = findOne("#changelog-result");
-let output = findOne("#changelog-output");
-let input = findOne<HTMLTextAreaElement>("#changelog-input");
+const button = findOne<HTMLButtonElement>("#changelog-run");
+const buttonWithCommits = findOne<HTMLButtonElement>("#changelog-run-with-commits");
+const result = findOne<HTMLDivElement>("#changelog-result");
+const output = findOne<HTMLDivElement>("#changelog-output");
+const input = findOne<HTMLTextAreaElement>("#changelog-input");
 
-if (button && result && output && input)
+if (button && buttonWithCommits && result && output && input)
 {
-    on(
-        button,
-        "click",
-        () =>
-        {
-            if (!result || !output || !input)
-            {
-                return;
-            }
-
-            result.classList.remove("d-none");
-            output.classList.remove("text-danger");
-
-            try
-            {
-                output.textContent = transformMarkdown(input.value);
-            }
-            catch (e)
-            {
-                output.textContent = e.message;
-                output.classList.add("text-danger");
-            }
-        }
-    );
+    on(button, "click", () => run(result, output, input, false));
+    on(buttonWithCommits, "click", () => run(result, output, input, true));
 }
+
+/**
+ * Runs the conversion and updates the fields
+ */
+function run (result: HTMLDivElement, output: HTMLDivElement, input: HTMLTextAreaElement, includeCommits: boolean) : void
+{
+    result.classList.remove("d-none");
+    output.classList.remove("text-danger");
+
+    try
+    {
+        let result = transformMarkdown(input.value);
+
+        if (includeCommits)
+        {
+            result += "\n\n\n## Commits\n\n";
+        }
+
+        output.textContent = result;
+
+        if (navigator.clipboard)
+        {
+            navigator.clipboard.writeText(result);
+        }
+    }
+    catch (e)
+    {
+        output.textContent = e.message;
+        output.classList.add("text-danger");
+    }
+}
+
 
 
 /**
@@ -119,14 +130,6 @@ function transformList (node: Node, listRenderer: remarkStringify.Visitor, headl
         renderList(categories.docs, ":memo: Documentation", listRenderer, headlineRenderer),
         renderList(categories.internal, ":hammer_and_wrench: Internal", listRenderer, headlineRenderer),
     ];
-
-    sections.push(
-        headlineRenderer({
-            type: "heading",
-            depth: 2,
-            children: [{ type: "text", value: "Commits"}],
-        })
-    );
 
     return sections
         .filter(entry => entry.length)
